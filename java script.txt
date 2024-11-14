@@ -1,0 +1,121 @@
+const words = [
+    { es: "Hola", en: "Hello" },
+    { es: "Mundo", en: "World" },
+    { es: "Estudio", en: "Study" },
+    { es: "Aprender", en: "Learn" },
+    { es: "Idioma", en: "Language" },
+    { es: "Amigo", en: "Friend" },
+    { es: "Familia", en: "Family" },
+    { es: "Trabajo", en: "Work" },
+    { es: "Escuela", en: "School" },
+    { es: "Libros", en: "Books" },
+    { es: "Comida", en: "Food" },
+    { es: "Felicidad", en: "Happiness" },
+    { es: "Casa", en: "House" },
+    { es: "Agua", en: "Water" },
+    { es: "Sol", en: "Sun" },
+    { es: "Cielo", en: "Sky" },
+    { es: "Coche", en: "Car" },
+    { es: "Niño", en: "Boy" },
+    { es: "Niña", en: "Girl" },
+    { es: "Perro", en: "Dog" },
+    { es: "Gato", en: "Cat" },
+    // Agregar más palabras aquí hasta completar las 1000
+    { es: "Viaje", en: "Travel" },
+    { es: "Pelota", en: "Ball" },
+    { es: "Rápido", en: "Fast" },
+    { es: "Lento", en: "Slow" },
+    { es: "Feliz", en: "Happy" },
+    { es: "Triste", en: "Sad" },
+    { es: "Grande", en: "Big" },
+    { es: "Pequeño", en: "Small" },
+    { es: "Fuerte", en: "Strong" },
+    { es: "Débil", en: "Weak" },
+    { es: "Cielo", en: "Sky" },
+    { es: "Mar", en: "Sea" },
+    { es: "Montaña", en: "Mountain" },
+    { es: "Río", en: "River" },
+    { es: "Árbol", en: "Tree" },
+    { es: "Flor", en: "Flower" },
+    { es: "Playa", en: "Beach" },
+    { es: "Viento", en: "Wind" },
+    { es: "Nieve", en: "Snow" },
+];
+
+let currentIndex = 0;
+let currentSpeed = 4; // Velocidad predeterminada en segundos
+let intervalId = null;
+let isPlaying = false; // Estado de reproducción
+const wordDisplay = document.getElementById('word-display');
+const playButton = document.getElementById('play-button');
+const speedButton = document.getElementById('speed-button');
+const speedInfo = document.getElementById('speed-info');
+
+// Configuración de SpeechSynthesis (Text-to-Speech)
+const speechSynthesis = window.speechSynthesis;
+
+// Función para iniciar la reproducción automática de palabras
+function startAutoPlay() {
+    intervalId = setInterval(() => {
+        if (currentIndex < words.length) {
+            const word = words[currentIndex];
+            wordDisplay.innerHTML = `${word.es} <br> ${word.en}`; // Mostrar palabra en español e inglés una debajo de la otra
+            speakWord(word.en); // Reproducir la palabra en inglés
+            currentIndex++;
+        } else {
+            clearInterval(intervalId); // Detener la reproducción automática cuando se terminen las palabras
+            wordDisplay.textContent = "¡Has terminado!";
+            playButton.textContent = "Play";
+            isPlaying = false;
+        }
+    }, currentSpeed * 1000); // Cambiar cada 'currentSpeed' segundos
+}
+
+// Función para reproducir la palabra
+function speakWord(word) {
+    const utterance = new SpeechSynthesisUtterance(word);
+    utterance.lang = 'en-US'; // Establecer el idioma en inglés
+    speechSynthesis.speak(utterance);
+}
+
+// Función para manejar la reproducción y la pausa
+function togglePlayPause() {
+    if (isPlaying) {
+        clearInterval(intervalId); // Pausar reproducción
+        playButton.textContent = "Play";
+    } else {
+        if (currentIndex >= words.length) {
+            currentIndex = 0; // Reiniciar si ya hemos llegado al final
+        }
+        startAutoPlay(); // Iniciar reproducción
+        playButton.textContent = "Pausa";
+    }
+    isPlaying = !isPlaying; // Cambiar estado de reproducción
+}
+
+// Función para cambiar la velocidad (incrementar o disminuir)
+function changeSpeed() {
+    if (currentSpeed >= 2 && currentSpeed <= 10) {
+        if (currentSpeed === 2) {
+            currentSpeed = 4; // Cambia de 2 a 4
+        } else if (currentSpeed === 4) {
+            currentSpeed = 6; // Cambia de 4 a 6
+        } else if (currentSpeed === 6) {
+            currentSpeed = 8; // Cambia de 6 a 8
+        } else if (currentSpeed === 8) {
+            currentSpeed = 2; // Si llega a 8, vuelve a 2
+        }
+    } else {
+        currentSpeed = 4; // Valor predeterminado si está fuera del rango
+    }
+
+    speedInfo.textContent = `Velocidad actual: ${currentSpeed} segundos`;
+    if (isPlaying) {
+        clearInterval(intervalId); // Detener la reproducción actual para reiniciar con nueva velocidad
+        startAutoPlay(); // Iniciar nuevamente con la nueva velocidad
+    }
+}
+
+// Event listeners
+playButton.addEventListener('click', togglePlayPause);
+speedButton.addEventListener('click', changeSpeed);
